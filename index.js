@@ -13,6 +13,7 @@ app.use(cors());
 
 // create a get api for render the product to the frontend
 const ProductListSchema = require("./model/product-list-schema")
+const AddToCartProducts = require("./model/add-to-cart-product")
 
 
 app.get("/products-list", async (req, res) => {
@@ -43,6 +44,32 @@ app.get("/products-list", async (req, res) => {
     console.log("error is", error);
   }
 });
+
+
+app.post("/add-to-cart", async (req, res) => {
+  try {
+    const {product, quantity, userId} = req.body;
+    if (!product) {
+      throw new Error("product object is required");
+    }
+    const addToCartProduct = new AddToCartProducts({userId : userId, productOrder : product, productQuantity : quantity});
+    const addedToCart = await addToCartProduct.save();
+    console.log("addedToCart", addedToCart);
+    return res.json({
+      status: 200,
+      success: true,
+      message: "Product added to cart successfully",
+    });
+  } catch (error) {
+    res.status(402).json({
+      success: false,
+      message: "Failed to add the product to cart",
+      error: error,
+    });
+    console.log("error is", error);
+  }
+});
+
 
 
 app.listen(process.env.PORT || 4000, () => {
